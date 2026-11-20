@@ -4,9 +4,11 @@
 
 Download and install the MeshCord Server files from HERE:
 
-https://meshcordapp.xyz/ - Backup repo HERE: 
+https://meshcordapp.xyz/ 
 
-## Backup Repo Coming Soon !.
+## Backup repo HERE: 
+
+*Backup Repo Coming Soon !.*
 
 ## About
 
