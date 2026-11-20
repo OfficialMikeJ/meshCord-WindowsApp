@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+    <title>MeshCord</title>
+</head>
+<body>
+
+<!-- ── Window chrome ────────────────────────────────────────────────────── -->
+<div class="titlebar" id="titlebar">
+    <div class="titlebar-drag" id="titlebar-drag">
+        <span class="titlebar-logo icon-slot" data-icon="logo" data-size="16"></span>
+        <span class="titlebar-title" id="titlebar-title">MeshCord</span>
+    </div>
+    <div class="win-buttons">
+        <button class="win-button" id="btn-win-minimize" aria-label="Minimize"></button>
+        <button class="win-button" id="btn-win-maximize" aria-label="Maximize"></button>
+        <button class="win-button win-close" id="btn-win-close" aria-label="Close"></button>
+    </div>
+</div>
+
+<div class="app">
+
+    <!-- ── Server rail ──────────────────────────────────────────────────── -->
+    <nav class="server-rail">
+        <div class="rail-item-wrap">
+            <div class="rail-pill" data-pill="home"></div>
+            <div class="rail-item rail-home active" id="btn-home" data-tooltip="Direct Messages">MC</div>
+        </div>
+
+        <div class="rail-divider"></div>
+
+        <div id="server-list"></div>
+
+        <div class="rail-item-wrap">
+            <div class="rail-pill"></div>
+            <div class="rail-item rail-action" id="btn-add-server" data-tooltip="Add a Server">
+                <span class="icon-slot" data-icon="add" data-size="24"></span>
+            </div>
+        </div>
+
+        <div class="rail-item-wrap">
+            <div class="rail-pill"></div>
+            <div class="rail-item rail-action" id="btn-discover" data-tooltip="Discover Servers">
+                <span class="icon-slot" data-icon="compass" data-size="24"></span>
+            </div>
+        </div>
+
+        <div class="rail-item-wrap">
+            <div class="rail-pill"></div>
+            <div class="rail-item rail-action" id="btn-bots" data-tooltip="Bot Discovery">
+                <span class="icon-slot" data-icon="robot" data-size="24"></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ── Channel sidebar ──────────────────────────────────────────────── -->
+    <div class="channel-sidebar">
+        <button class="server-header" id="current-server-name" title="Server Menu">
+            <span class="server-header-name">MeshCord</span>
+            <span class="server-header-chevron icon-slot" data-icon="chevron" data-size="18"></span>
+        </button>
+
+        <div id="server-dropdown" class="dropdown" hidden>
+            <div class="dropdown-item" id="btn-dropdown-settings">
+                <span>Server Settings</span>
+                <span class="icon-slot" data-icon="gear" data-size="16"></span>
+            </div>
+            <div class="dropdown-item" id="btn-create-channel">
+                <span>Create Channel</span>
+                <span class="icon-slot" data-icon="plusCircle" data-size="16"></span>
+            </div>
+            <div class="dropdown-divider"></div>
+            <div class="dropdown-item danger" id="btn-leave-server">
+                <span>Leave Server</span>
+                <span class="icon-slot" data-icon="disconnect" data-size="16"></span>
+            </div>
+        </div>
+
+        <div class="channels-scroll" id="channel-list"></div>
+
+        <!-- Voice status, shown only while connected to a voice channel -->
+        <div class="voice-panel" id="voice-panel" hidden>
+            <div class="voice-panel-info">
+                <div class="voice-panel-state">
+                    <span class="icon-slot" data-icon="speaker" data-size="16"></span>
+                    <span id="voice-status-text">Voice Connected</span>
+                </div>
+                <div class="voice-panel-channel" id="voice-status-channel"></div>
+            </div>
+            <button class="panel-btn danger" id="btn-voice-disconnect" data-tooltip="Disconnect">
+                <span class="icon-slot" data-icon="disconnect" data-size="20"></span>
+            </button>
+        </div>
+
+        <div class="user-panel">
+            <div class="user-panel-user" id="btn-user-card">
+                <div class="avatar avatar-32" id="self-avatar">
+                    <span class="avatar-initials">M</span>
+                    <i class="status-dot online"></i>
+                </div>
+                <div class="user-panel-names">
+                    <div class="user-panel-name username">MeshCord</div>
+                    <div class="user-panel-sub" id="current-activity">Online</div>
+                </div>
+            </div>
+            <div class="user-panel-actions">
+                <button class="panel-btn" id="btn-mute" data-tooltip="Mute">
+                    <span class="icon-slot" data-icon="mic" data-size="20"></span>
+                </button>
+                <button class="panel-btn" id="btn-deafen" data-tooltip="Deafen">
+                    <span class="icon-slot" data-icon="headphones" data-size="20"></span>
+                </button>
+                <button class="panel-btn" id="btn-user-settings" data-tooltip="User Settings">
+                    <span class="icon-slot" data-icon="gear" data-size="20"></span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Self profile popout — Discord-style card above the user panel -->
+        <div class="user-popout" id="user-popout" hidden>
+            <div class="popout-banner" id="popout-banner"></div>
+            <div class="popout-avatar" id="popout-avatar"></div>
+            <div class="popout-body">
+                <div class="popout-name" id="popout-name">MeshCord</div>
+                <div class="popout-handle" id="popout-handle"></div>
+                <div class="popout-status-bubble" id="popout-status-bubble" hidden></div>
+                <div class="popout-badges" id="popout-badges"></div>
+                <div class="popout-divider"></div>
+                <div class="popout-section" id="popout-about-sec" hidden>
+                    <h4>About Me</h4>
+                    <p id="popout-about"></p>
+                </div>
+                <button class="popout-item" id="popout-edit-profile">
+                    <span class="icon-slot" data-icon="edit" data-size="16"></span>
+                    <span>Edit Profile</span>
+                </button>
+                <div class="popout-item-wrap">
+                    <button class="popout-item" id="popout-status-btn">
+                        <i class="status-dot online" id="popout-status-dot"></i>
+                        <span id="popout-status-label">Online</span>
+                        <span class="popout-item-caret icon-slot" data-icon="chevron" data-size="16"></span>
+                    </button>
+                    <div class="popout-status-menu" id="popout-status-menu" hidden>
+                        <button class="popout-item" data-status="online">
+                            <i class="status-dot online"></i><span>Online</span>
+                        </button>
+                        <button class="popout-item" data-status="idle">
+                            <i class="status-dot idle"></i><span>Idle</span>
+                        </button>
+                        <button class="popout-item" data-status="dnd">
+                            <i class="status-dot dnd"></i>
+                            <span>Do Not Disturb
+                                <small>You will not receive desktop notifications</small></span>
+                        </button>
+                        <button class="popout-item" data-status="offline">
+                            <i class="status-dot offline"></i>
+                            <span>Invisible<small>You will appear offline</small></span>
+                        </button>
+                    </div>
+                </div>
+                <button class="popout-item" id="popout-copy-id">
+                    <span class="icon-slot" data-icon="idCard" data-size="16"></span>
+                    <span>Copy User ID</span>
+                </button>
+                <button class="popout-item danger" id="popout-logout">
+                    <span class="icon-slot" data-icon="disconnect" data-size="16"></span>
+                    <span>Log Out</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Chat column ──────────────────────────────────────────────────── -->
+    <div class="chat-column">
+        <header class="chat-header">
+            <button class="header-btn mobile-only" id="btn-menu" aria-label="Open channels">
+                <span class="icon-slot" data-icon="menu" data-size="24"></span>
+            </button>
+            <div class="nav-arrows">
+                <button class="header-btn nav-arrow" id="btn-nav-back" data-tooltip="Back" disabled>
+                    <span class="icon-slot" data-icon="arrowLeft" data-size="20"></span>
+                </button>
+                <button class="header-btn nav-arrow" id="btn-nav-forward" data-tooltip="Forward" disabled>
+                    <span class="icon-slot" data-icon="arrowRight" data-size="20"></span>
+                </button>
+            </div>
+            <span class="chat-header-icon icon-slot" data-icon="hash" data-size="24"></span>
+            <span class="chat-header-name" id="current-channel-name">general</span>
+
+            <div class="chat-header-sep" id="topic-sep" hidden></div>
+            <span class="chat-header-topic" id="channel-topic"></span>
+
+            <div class="chat-header-actions">
+                <button class="header-btn update-btn" id="btn-update"
+                        data-tooltip="Update Available" aria-label="Update MeshCord" hidden>
+                    <span class="icon-slot" data-icon="download" data-size="24"></span>
+                </button>
+                <div class="header-btn-wrap">
+                    <button class="header-btn" id="btn-threads" data-tooltip="Threads">
+                        <span class="icon-slot" data-icon="threads" data-size="24"></span>
+                    </button>
+                    <div class="header-panel" id="threads-panel" hidden>
+                        <div class="header-panel-title">Threads</div>
+                        <div class="header-panel-list" id="threads-list"></div>
+                    </div>
+                </div>
+                <div class="header-btn-wrap">
+                    <button class="header-btn" id="btn-notifications" data-tooltip="Notification Settings">
+                        <span class="icon-slot" data-icon="bell" data-size="24"></span>
+                    </button>
+                    <div class="header-panel" id="notif-panel" hidden>
+                        <div class="header-panel-title">Notification Settings</div>
+                        <div class="header-panel-body">
+                            <label class="check-label" for="notif-channel-mute">
+                                <input type="checkbox" id="notif-channel-mute">
+                                <span>Mute this channel</span>
+                            </label>
+                            <label class="check-label" for="notif-server-mute">
+                                <input type="checkbox" id="notif-server-mute">
+                                <span>Mute this server</span>
+                            </label>
+                            <p class="panel-hint">Muted channels and servers stop
+                            unread indicators and pings.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="header-btn-wrap">
+                    <button class="header-btn" id="btn-pins" data-tooltip="Pinned Messages">
+                        <span class="icon-slot" data-icon="pin" data-size="24"></span>
+                    </button>
+                    <div class="header-panel" id="pins-panel" hidden>
+                        <div class="header-panel-title">Pinned Messages</div>
+                        <div class="header-panel-list" id="pins-list"></div>
+                    </div>
+                </div>
+                <button class="header-btn active" id="btn-toggle-members" data-tooltip="Hide Member List">
+                    <span class="icon-slot" data-icon="members" data-size="24"></span>
+                </button>
+
+                <div class="header-search">
+                    <input type="text" id="message-search" placeholder="Search" spellcheck="false">
+                    <span class="header-search-icon icon-slot" data-icon="search" data-size="16"></span>
+                </div>
+
+                <div class="header-btn-wrap">
+                    <button class="header-btn" id="btn-inbox" data-tooltip="Inbox">
+                        <span class="icon-slot" data-icon="inbox" data-size="24"></span>
+                    </button>
+                    <div class="header-panel" id="inbox-panel" hidden>
+                        <div class="header-panel-title">Inbox — Direct Messages</div>
+                        <div class="header-panel-list" id="inbox-list"></div>
+                    </div>
+                </div>
+                <button class="header-btn" id="btn-help" data-tooltip="Help &amp; Shortcuts">
+                    <span class="icon-slot" data-icon="help" data-size="24"></span>
+                </button>
+                <span class="ping-pill" id="ping-display">—</span>
+            </div>
+        </header>
+
+        <div class="chat-body">
+            <div class="messages-column">
+                <div class="chat-empty" id="chat-empty">
+                    <div class="chat-empty-inner">
+                        <span class="chat-empty-logo icon-slot" data-icon="logo" data-size="72"></span>
+                        <h2 id="chat-empty-title">Welcome to MeshCord</h2>
+                        <p id="chat-empty-text">Pick a server on the left to start
+                        chatting — or discover one to join.</p>
+                        <button class="btn btn-primary" id="chat-empty-setup" hidden>
+                            Set Up Your Server
+                        </button>
+                    </div>
+                </div>
+                <div class="messages" id="message-list"></div>
+
+                <!-- Support barrier — renders in place of the message list on
+                     a Community server's #support channel -->
+                <div class="support-barrier" id="support-barrier" hidden>
+                    <div class="support-barrier-inner">
+                        <span class="support-barrier-icon icon-slot" data-icon="help" data-size="56"></span>
+                        <h2>Support</h2>
+                        <button class="btn btn-primary btn-ticket" id="btn-open-ticket">
+                            Open Ticket
+                        </button>
+                        <p class="support-barrier-msg" id="support-barrier-msg">
+                            Please open a support ticket for further support assistance
+                            and someone from our team will be right with you, In the
+                            event you open a ticket during our off-hours Someone will
+                            respond to your ticket as soon as a staff member has
+                            become available or are online
+                        </p>
+                        <p class="support-barrier-hours" id="support-barrier-hours" hidden></p>
+                    </div>
+                </div>
+
+                <div class="composer-wrap">
+                    <div class="composer">
+                        <button class="composer-btn" id="btn-attach" data-tooltip="Upload a File">
+                            <span class="icon-slot" data-icon="plusCircle" data-size="24"></span>
+                        </button>
+                        <input type="text" class="composer-input" id="chat-input"
+                               placeholder="Message #general" spellcheck="false">
+                        <button class="composer-btn" id="btn-emoji" data-tooltip="Emoji">
+                            <span class="icon-slot" data-icon="emoji" data-size="24"></span>
+                        </button>
+                    </div>
+                    <div class="composer-hint" id="composer-hint"></div>
+                </div>
+            </div>
+
+            <aside class="member-list" id="member-list"></aside>
+        </div>
+    </div>
+
+    <!-- Dimmed backdrop for the mobile sidebar drawer -->
+    <div class="drawer-scrim" id="drawer-scrim" hidden></div>
+
+    <!-- Right-click context menus (message + user) -->
+    <div class="ctx-menu" id="ctx-menu" hidden></div>
+    <div class="ctx-menu ctx-submenu" id="ctx-submenu" hidden></div>
+
+    <!-- Composer @mention autocomplete -->
+    <div class="mention-suggest" id="mention-suggest" hidden></div>
+
+    <!-- Toast notifications — bottom right -->
+    <div class="toast-wrap" id="toast-wrap"></div>
+</div>
+
+<!-- ── Server settings ──────────────────────────────────────────────────── -->
+<div id="settings-modal" class="settings-overlay" hidden>
+    <div class="settings-layout">
+        <div class="settings-nav">
+            <div class="settings-nav-inner">
+                <div class="settings-nav-header" id="settings-server-title">Server</div>
+                <div class="settings-tab active" data-tab="overview">Overview</div>
+                <div class="settings-tab" data-tab="roles">Roles</div>
+                <div class="settings-tab" data-tab="discovery">Discovery</div>
+                <div class="settings-tab" data-tab="support" id="tab-support" hidden>Support</div>
+                <div class="settings-tab" data-tab="invites">Invites</div>
+                <div class="settings-nav-divider"></div>
+                <div class="settings-tab danger" id="btn-delete-server">Delete Server</div>
+            </div>
+        </div>
+
+        <div class="settings-content">
+            <div class="settings-content-inner">
+                <section class="settings-section" data-section="overview">
+                    <h2 class="settings-title">Server Overview</h2>
+                    <div class="field">
+                        <label class="field-label" for="settings-server-name">Server Name</label>
+                        <input type="text" class="field-input" id="settings-server-name">
+                    </div>
+                    <div class="field">
+                        <label class="field-label" for="settings-server-desc">Description</label>
+                        <input type="text" class="field-input" id="settings-server-desc"
+                               placeholder="What is this server about?">
+                    </div>
+                    <button class="btn btn-primary" id="btn-save-server">Save Changes</button>
+                    <span class="inline-note" id="server-save-note"></span>
+                </section>
+
+                <section class="settings-section" data-section="discovery" hidden>
+                    <h2 class="settings-title">Discovery</h2>
+                    <p class="settings-desc">
+                        Control whether this server — and the whole node — can be
+                        found in the Discover tab.
+                    </p>
+
+                    <div class="privacy-row">
+                        <div>
+                            <div class="permission-label">List this server publicly</div>
+                            <div class="permission-desc">Show this server in this node's Discover tab so members can find and join it.</div>
+                        </div>
+                        <div class="switch" id="discovery-server-switch"></div>
+                    </div>
+
+                    <div id="node-discovery-wrap" hidden>
+                        <div class="divider"></div>
+                        <h3 class="settings-subtitle">Node Discovery <span class="admin-tag">Admin</span></h3>
+                        <div class="privacy-row">
+                            <div>
+                                <div class="permission-label">Allow discovery on this node</div>
+                                <div class="permission-desc">
+                                    Master Admin switch. Off = the node is fully private:
+                                    its servers never appear in discovery and the node is
+                                    not listed publicly. Turn back on any time.
+                                </div>
+                            </div>
+                            <div class="switch" id="discovery-node-switch"></div>
+                        </div>
+                        <span class="inline-note" id="discovery-note"></span>
+                    </div>
+                </section>
+
+                <section class="settings-section" data-section="support" hidden>
+                    <h2 class="settings-title">Support</h2>
+                    <p class="settings-desc">
+                        The support forum lives in the #support channel. Users open
+                        one ticket per request (one per 48 hours); only you and
+                        node staff can see tickets.
+                    </p>
+
+                    <div class="privacy-row">
+                        <div>
+                            <div class="permission-label">Accepting new tickets</div>
+                            <div class="permission-desc">
+                                Off = users see your open hours instead of being
+                                able to file a ticket. Existing tickets stay open.
+                            </div>
+                        </div>
+                        <div class="switch" id="support-open-switch"></div>
+                    </div>
+
+                    <div class="field">
+                        <label class="field-label" for="support-hours">Open hours</label>
+                        <input type="text" class="field-input" id="support-hours"
+                               placeholder="Mon-Fri 9AM - 5PM">
+                    </div>
+                    <div class="field">
+                        <label class="field-label" for="support-timezone">Time zone</label>
+                        <select class="field-input field-select" id="support-timezone">
+                            <option>EST</option><option>EDT</option>
+                            <option>CST</option><option>CDT</option>
+                            <option>MST</option><option>MDT</option>
+                            <option>PST</option><option>PDT</option>
+                            <option>AKST</option><option>HST</option>
+                            <option>UTC</option><option>GMT</option>
+                            <option>CET</option><option>EET</option>
+                            <option>IST</option><option>JST</option><option>AEST</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" id="btn-save-support">Save Changes</button>
+                    <span class="inline-note" id="support-save-note"></span>
+                </section>
+
+                <section class="settings-section" data-section="invites" hidden>
+                    <h2 class="settings-title">Invites</h2>
+                    <p class="settings-desc">
+                        Give your server an invite link that's easy to share and
+                        remember — pick the ending, and the link is ready to send.
+                        Custom links never expire.
+                    </p>
+                    <div class="field">
+                        <label class="field-label" for="invite-slug">Invite link ending</label>
+                        <input type="text" class="field-input" id="invite-slug"
+                               placeholder="my-server" spellcheck="false">
+                        <div class="field-hint">Your link will look like
+                            https://your-node.com/invite/my-server</div>
+                    </div>
+                    <button class="btn btn-primary" id="btn-create-invite">Create Invite</button>
+                    <span class="inline-note" id="invite-note"></span>
+                    <div class="invite-list" id="invite-list"></div>
+                </section>
+
+                <section class="settings-section" data-section="roles" hidden>
+                    <div class="settings-head-row">
+                        <h2 class="settings-title">Roles</h2>
+                        <button class="btn btn-primary" id="btn-create-role">Create Role</button>
+                    </div>
+                    <p class="settings-desc">
+                        Use roles to group members and assign permissions.
+                    </p>
+
+                    <div class="roles-layout">
+                        <div class="roles-list" id="roles-list"></div>
+
+                        <div class="role-editor" id="role-editor" hidden>
+                            <div class="field">
+                                <label class="field-label" for="edit-role-name">Role Name</label>
+                                <input type="text" class="field-input" id="edit-role-name">
+                            </div>
+                            <div class="field">
+                                <label class="field-label" for="edit-role-color">Role Color</label>
+                                <div class="color-row">
+                                    <input type="color" class="field-color" id="edit-role-color">
+                                    <span class="color-value" id="edit-role-color-value"></span>
+                                </div>
+                            </div>
+
+                            <div class="field-label section-label">Permissions</div>
+                            <div class="permissions" id="role-permissions"></div>
+
+                            <div class="role-editor-actions">
+                                <button class="btn btn-primary" id="btn-save-role">Save Changes</button>
+                                <button class="btn btn-danger" id="btn-delete-role">Delete Role</button>
+                                <span class="inline-note" id="role-save-note"></span>
+                            </div>
+                        </div>
+
+                        <div class="role-editor-empty" id="role-editor-empty">
+                            Select a role to edit it, or create a new one.
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <button class="esc-btn" id="btn-close-server-settings">
+                <span class="icon-slot" data-icon="close" data-size="18"></span>
+                <span class="esc-label">ESC</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ── User settings ────────────────────────────────────────────────────── -->
+<div id="user-settings-modal" class="settings-overlay" hidden>
+    <div class="settings-layout">
+        <div class="settings-nav">
+            <div class="settings-nav-inner">
+                <div class="settings-nav-header">User Settings</div>
+                <div class="settings-tab active" data-utab="account">My Account</div>
+                <div class="settings-tab" data-utab="profiles">Profiles</div>
+                <div class="settings-tab" data-utab="privacy">Privacy &amp; Safety</div>
+                <div class="settings-nav-divider"></div>
+                <div class="settings-tab danger" id="btn-logout">Log Out</div>
+            </div>
+        </div>
+
+        <div class="settings-content">
+            <div class="settings-content-inner">
+                <section class="user-section" data-usection="account">
+                <h2 class="settings-title">My Account</h2>
+
+                <div class="account-card">
+                    <div class="account-card-banner"></div>
+                    <div class="account-card-body">
+                        <div class="avatar avatar-80" id="account-avatar">
+                            <span class="avatar-initials">M</span>
+                            <i class="status-dot online"></i>
+                        </div>
+                        <div class="account-card-names">
+                            <div class="account-name username">MeshCord</div>
+                            <div class="account-mesh">
+                                Mesh ID <span class="mono" id="display-mesh-id">connecting…</span>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" id="btn-edit-profile">Edit User Profile</button>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label class="field-label" for="edit-custom-status">Custom Status</label>
+                    <input type="text" class="field-input" id="edit-custom-status">
+                </div>
+
+                <div class="field">
+                    <label class="field-label" for="edit-avatar-color">Avatar Color</label>
+                    <div class="color-row">
+                        <input type="color" class="field-color" id="edit-avatar-color">
+                        <span class="color-value" id="edit-avatar-color-value"></span>
+                    </div>
+                </div>
+
+                <div class="divider"></div>
+
+                <h3 class="settings-subtitle">Two-Factor Authentication</h3>
+                <div class="tfa-card">
+                    <div class="tfa-row">
+                        <div>
+                            <div class="tfa-title">Authenticator App</div>
+                            <div class="tfa-sub">Protect your account with a TOTP authenticator app.</div>
+                        </div>
+                        <button class="btn btn-primary" id="btn-setup-2fa">Set Up 2FA</button>
+                    </div>
+
+                    <div id="totp-setup" hidden>
+                        <div class="tfa-enrol">
+                            <img id="totp-qr" alt="2FA QR code" class="tfa-qr">
+                            <div class="tfa-enrol-body">
+                                <div class="tfa-sub">Manual key</div>
+                                <div class="mono tfa-secret" id="totp-secret"></div>
+                                <div class="field">
+                                    <label class="field-label" for="totp-code">Enter the 6-digit code</label>
+                                    <input type="text" class="field-input" id="totp-code"
+                                           maxlength="6" inputmode="numeric" placeholder="123456">
+                                </div>
+                                <button class="btn btn-primary" id="btn-verify-2fa">Verify &amp; Enable</button>
+                                <span class="inline-note" id="totp-result"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                </section>
+
+                <section class="user-section" data-usection="profiles" hidden>
+                    <h2 class="settings-title">Profiles</h2>
+                    <p class="settings-desc">
+                        Your profile is what other members of this node see — on
+                        messages, in the member list, and in direct messages.
+                    </p>
+
+                    <div class="field">
+                        <label class="field-label" for="profile-display-name">Display Name</label>
+                        <input type="text" class="field-input" id="profile-display-name" maxlength="32">
+                    </div>
+                    <div class="field">
+                        <label class="field-label" for="profile-status">Custom Status</label>
+                        <input type="text" class="field-input" id="profile-status" maxlength="128"
+                               placeholder="What are you up to?">
+                    </div>
+                    <div class="field">
+                        <label class="field-label" for="profile-avatar-color">Avatar Color</label>
+                        <div class="color-row">
+                            <input type="color" class="field-color" id="profile-avatar-color">
+                            <span class="color-value" id="profile-avatar-color-value"></span>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label class="field-label" for="profile-about">About Me</label>
+                        <textarea class="field-input field-textarea" id="profile-about" maxlength="256"
+                                  rows="3" placeholder="A short bio shown on your profile"></textarea>
+                    </div>
+                    <div class="field">
+                        <label class="field-label" for="profile-pronouns">Pronouns</label>
+                        <input type="text" class="field-input" id="profile-pronouns" maxlength="40"
+                               placeholder="e.g. they/them">
+                    </div>
+                    <div class="field">
+                        <label class="field-label">Profile Picture</label>
+                        <div class="avatar-upload-row">
+                            <div class="avatar avatar-80" id="profile-avatar-preview">
+                                <span class="avatar-initials">M</span>
+                                <i class="status-dot online"></i>
+                            </div>
+                            <div class="avatar-upload-actions">
+                                <button class="btn btn-primary" id="btn-upload-avatar">Upload Image</button>
+                                <button class="btn btn-link" id="btn-remove-avatar">Remove</button>
+                                <p class="panel-hint">PNG, JPG, WebP or GIF — max 2.5 MB.</p>
+                            </div>
+                        </div>
+                        <input type="file" id="avatar-file" accept="image/png,image/jpeg,image/webp,image/gif" hidden>
+                    </div>
+                    <div class="field">
+                        <label class="field-label">Avatar Decoration</label>
+                        <p class="panel-hint" style="margin:-4px 0 8px">A glow ring around your profile picture — like Discord's avatar decorations.</p>
+                        <div class="decoration-grid" id="decoration-grid"></div>
+                    </div>
+                    <div class="field">
+                        <label class="field-label">Preview</label>
+                        <div class="profile-preview">
+                            <div class="avatar avatar-40" id="profile-preview-avatar">
+                                <span class="avatar-initials">M</span>
+                                <i class="status-dot online"></i>
+                            </div>
+                            <div>
+                                <div id="profile-preview-name" class="username">MeshCord</div>
+                                <div class="profile-preview-status" id="profile-preview-status"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" id="btn-save-profile">Save Changes</button>
+                    <span class="inline-note" id="profile-save-note"></span>
+                </section>
+
+                <section class="user-section" data-usection="privacy" hidden>
+                    <h2 class="settings-title">Privacy &amp; Safety</h2>
+                    <p class="settings-desc">
+                        Control who can reach you and what this client stores locally.
+                    </p>
+
+                    <div class="privacy-row">
+                        <div>
+                            <div class="permission-label">Direct messages from server members</div>
+                            <div class="permission-desc">Let people who share a server with you open a DM.</div>
+                        </div>
+                        <div class="switch" id="priv-dms"></div>
+                    </div>
+                    <div class="privacy-row">
+                        <div>
+                            <div class="permission-label">Show online status</div>
+                            <div class="permission-desc">When off you appear offline to other members.</div>
+                        </div>
+                        <div class="switch on" id="priv-status"></div>
+                    </div>
+                    <div class="privacy-row">
+                        <div>
+                            <div class="permission-label">Filter explicit content</div>
+                            <div class="permission-desc">Hide messages flagged by the node's moderation bot.</div>
+                        </div>
+                        <div class="switch on" id="priv-filter"></div>
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <h3 class="settings-subtitle">Local data</h3>
+                    <p class="settings-desc">
+                        This client stores your profile preferences and session on
+                        this device only. Nothing is shared with other nodes.
+                    </p>
+                    <button class="btn btn-danger" id="btn-clear-local">Clear Local Data &amp; Sign Out</button>
+
+                    <div class="divider"></div>
+                    <p class="settings-desc">
+                        See how MeshCord handles your data in the
+                        <a href="#" id="link-privacy-policy" class="text-link">Privacy Policy</a>.
+                    </p>
+                </section>
+            </div>
+
+            <button class="esc-btn" id="btn-close-user-settings">
+                <span class="icon-slot" data-icon="close" data-size="18"></span>
+                <span class="esc-label">ESC</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ── Onboarding (first run) ───────────────────────────────────────────── -->
+<div id="onboarding-modal" class="modal-overlay" hidden>
+    <div class="modal">
+        <div id="onboard-step-1">
+            <div class="modal-header">
+                <h2>Welcome to MeshCord</h2>
+                <div class="modal-subtitle">Step 1 of 2 — Create your Master Admin account.</div>
+            </div>
+            <div class="modal-body">
+                <div class="field">
+                    <label class="field-label" for="onboard-username">Admin Username</label>
+                    <input type="text" class="field-input" id="onboard-username" autocomplete="off" placeholder="admin">
+                </div>
+                <div class="field">
+                    <label class="field-label" for="onboard-password">Password</label>
+                    <input type="password" class="field-input" id="onboard-password" placeholder="At least 8 characters">
+                </div>
+                <div class="field">
+                    <label class="field-label" for="onboard-password2">Confirm Password</label>
+                    <input type="password" class="field-input" id="onboard-password2" placeholder="Re-enter password">
+                </div>
+                <div class="field-error" id="onboard-error-1"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary btn-block" id="btn-onboard-next">Next</button>
+            </div>
+        </div>
+
+        <div id="onboard-step-2" hidden>
+            <div class="modal-header">
+                <h2>Connect to your server</h2>
+                <div class="modal-subtitle">Step 2 of 2 — Enter your MeshCord instance domain.</div>
+            </div>
+            <div class="modal-body">
+                <div class="field">
+                    <label class="field-label" for="onboard-domain">Server Domain</label>
+                    <input type="text" class="field-input" id="onboard-domain" autocomplete="off"
+                           placeholder="https://node.example.com">
+                    <div class="field-hint">
+                        Must include <strong>https://</strong> — insecure http:// is rejected.<br>
+                        For advanced routing you can run Nginx Proxy Manager (manual Docker + Docker
+                        Compose) and point your DNS provider (Cloudflare recommended) at it.
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="check-label" for="onboard-register">
+                        <input type="checkbox" id="onboard-register">
+                        <span>Register a new account on this instance<br>
+                        <small>(leave unchecked to sign in / set up a new instance's Master Admin)</small></span>
+                    </label>
+                </div>
+                <div class="field-error" id="onboard-error-2"></div>
+            </div>
+            <div class="modal-footer space-between">
+                <button class="btn btn-link" id="btn-onboard-back">Back</button>
+                <button class="btn btn-primary" id="btn-onboard-connect">Connect</button>
+            </div>
+        </div>
+
+        <div id="onboard-step-3" hidden>
+            <div class="modal-header">
+                <h2>Set up your server</h2>
+                <div class="modal-subtitle">Step 3 of 3 — Create your first server on this node.</div>
+            </div>
+            <div class="modal-body">
+                <div class="field">
+                    <label class="field-label" for="setup-server-name">Server Name</label>
+                    <input type="text" class="field-input" id="setup-server-name" autocomplete="off"
+                           placeholder="My Community">
+                </div>
+                <div class="field">
+                    <label class="field-label" for="setup-server-desc">Description <small>(optional)</small></label>
+                    <input type="text" class="field-input" id="setup-server-desc"
+                           placeholder="What is this server about?">
+                </div>
+                <div class="field">
+                    <label class="field-label">Template</label>
+                    <div class="template-grid" id="setup-templates"></div>
+                </div>
+                <div class="field">
+                    <label class="field-label" for="setup-server-category">Category</label>
+                    <select class="field-input field-select" id="setup-server-category"></select>
+                </div>
+                <div class="field">
+                    <label class="field-label" for="setup-invite-slug">Invite link ending <small>(optional)</small></label>
+                    <input type="text" class="field-input" id="setup-invite-slug"
+                           placeholder="my-server" spellcheck="false">
+                    <div class="field-hint">An easy-to-share link like
+                        https://your-node.com/invite/my-server — it never expires.</div>
+
+                    <label class="check-label" for="setup-server-public">
+                        <input type="checkbox" id="setup-server-public">
+                        <span>List this server publicly in Discovery<br>
+                        <small>(you can change this any time in Server Settings)</small></span>
+                    </label>
+                </div>
+                <div class="field-error" id="onboard-error-3"></div>
+            </div>
+            <div class="modal-footer space-between">
+                <button class="btn btn-link" id="btn-setup-skip">Skip for now</button>
+                <button class="btn btn-primary" id="btn-setup-create">Create Server</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ── Server discovery ─────────────────────────────────────────────────── -->
+<div id="discovery-modal" class="modal-overlay" hidden>
+    <div class="modal modal-wide">
+        <div class="modal-header">
+            <h2>Discover Servers</h2>
+            <div class="modal-subtitle">Find public servers on this instance and join them.</div>
+        </div>
+        <div class="modal-body">
+            <div class="discovery-controls">
+                <input type="text" class="field-input" id="discovery-search" placeholder="Search servers…">
+                <select class="field-input field-select" id="discovery-category">
+                    <option value="All">All categories</option>
+                </select>
+            </div>
+            <div class="discovery-results" id="discovery-results"></div>
+        </div>
+        <div class="modal-footer space-between">
+            <span></span>
+            <button class="btn btn-link" id="btn-close-discovery">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- ── Bot discovery ────────────────────────────────────────────────────── -->
+<div id="bots-modal" class="modal-overlay" hidden>
+    <div class="modal modal-wide">
+        <div class="modal-header">
+            <h2>Bot Discovery</h2>
+            <div class="modal-subtitle">MeshCord Bots registered on this node — built on the MeshCord Bot Core Lua SDK.</div>
+        </div>
+        <div class="modal-body">
+            <div class="discovery-results" id="bots-results"></div>
+        </div>
+        <div class="modal-footer space-between">
+            <span></span>
+            <button class="btn btn-link" id="btn-close-bots">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- ── Help ─────────────────────────────────────────────────────────────── -->
+<div id="help-modal" class="modal-overlay" hidden>
+    <div class="modal">
+        <div class="modal-header">
+            <h2>Help &amp; Shortcuts</h2>
+            <div class="modal-subtitle" id="help-node-line"></div>
+        </div>
+        <div class="modal-body">
+            <div class="help-list">
+                <div class="help-row"><kbd>Enter</kbd><span>Send message</span></div>
+                <div class="help-row"><kbd>Esc</kbd><span>Close settings / modal</span></div>
+                <div class="help-row"><kbd>Search box</kbd><span>Filter messages — Enter for full search</span></div>
+            </div>
+            <p class="settings-desc">
+                Node admins also get a browser dashboard at
+                <strong>admin.&lt;your-node-domain&gt;</strong> — users, servers,
+                stats and the discovery switch.
+            </p>
+            <p class="settings-desc">
+                MeshCord Bots are written in Lua with the MeshCord Bot Core SDK —
+                see the documentation on meshcordapp.xyz.
+            </p>
+        </div>
+        <div class="modal-footer space-between">
+            <span></span>
+            <button class="btn btn-link" id="btn-close-help">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- ── Member profile card ──────────────────────────────────────────────── -->
+<div id="member-card" class="modal-overlay" hidden>
+    <div class="modal member-card">
+        <div class="member-card-banner" id="member-card-banner"></div>
+        <div class="member-card-body">
+            <div class="member-card-avatar" id="member-card-avatar"></div>
+            <div class="member-card-name" id="member-card-name"></div>
+            <div class="member-card-pronouns" id="member-card-pronouns"></div>
+            <div class="member-card-badge" id="member-card-badge" hidden>
+                <span class="admin-crown"><em>ADMIN</em></span>
+                <span>Node Administrator</span>
+            </div>
+            <div class="member-card-section" id="member-card-role" hidden></div>
+            <div class="member-card-section" id="member-card-joined" hidden></div>
+        </div>
+    </div>
+</div>
+
+<!-- ── Generic text prompt ──────────────────────────────────────────────── -->
+<div id="prompt-modal" class="modal-overlay" hidden>
+    <div class="modal">
+        <div class="modal-header">
+            <h2 id="prompt-title">Enter a value</h2>
+        </div>
+        <div class="modal-body">
+            <div class="field">
+                <label class="field-label" id="prompt-label" for="prompt-input">Name</label>
+                <input type="text" class="field-input" id="prompt-input" autocomplete="off">
+            </div>
+        </div>
+        <div class="modal-footer space-between">
+            <button class="btn btn-link" id="prompt-cancel">Cancel</button>
+            <button class="btn btn-primary" id="prompt-ok">Done</button>
+        </div>
+    </div>
+</div>
+
+<div class="tooltip" id="tooltip" hidden></div>
+
+<script src="./src/main.js" type="module"></script>
+</body>
+</html>

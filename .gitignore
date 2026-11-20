@@ -1,0 +1,9 @@
+# Build outputs — binaries ship as release assets, not source
+build/
+installer_output/
+wailsjs/
+frontend/dist/
+frontend/node_modules/
+node_modules/
+*.exe
+*.log
