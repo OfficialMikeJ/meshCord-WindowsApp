@@ -1,5 +1,13 @@
 # README
 
+## Server Side
+
+Download and install the MeshCord Server files from HERE:
+
+https://meshcordapp.xyz/ - Backup repo HERE: 
+
+## Backup Repo Coming Soon !.
+
 ## About
 
 This is the official Wails Vanilla template.
